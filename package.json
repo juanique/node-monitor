@@ -1,0 +1,16 @@
+{
+  "author": "Juan Enrique Munoz Zolotoochin <juanique@gmail.com>",
+  "name": "monitor",
+  "description": "Object wrapper classes to monitor changes.",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/juanique99/node-monitor.git"
+  },
+  "main": "./lib/monitor.js",
+  "engines": {
+    "node": "~v0.4.11"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
