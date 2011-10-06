@@ -1,0 +1,3 @@
+coffee -o ./lib/ -c ./src/monitor.coffee
+coffee -c ./test.coffee
+hash nodeunit test.js 2>&- || { echo >&2 "Nodeunit not found. Test suite was not called."; exit 1; }

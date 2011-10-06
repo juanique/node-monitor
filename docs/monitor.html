@@ -1,0 +1,330 @@
+<!DOCTYPE html>  <html> <head>   <title>monitor.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               monitor.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>The <strong>monitor</strong> module provides tools to monitor object changes and allow 
+synchronization between different data sources.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>It makes use of the <strong>notifier</strong> module for event handling.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">Notifier = </span><span class="nx">require</span><span class="p">(</span><span class="s">&quot;notifier&quot;</span><span class="p">).</span><span class="nx">Notifier</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h3><code>monitor(obj, extensible)</code></h3>
+
+<p>Is the basic object monitor function. It wraps a given object to monitor its changes.
+Objects can be declared as extensibles, meaning that new properties <em>can</em> me added to 
+the object, or non-extensibles. Note that assigning new properties using the 
+<code>=</code> operator on a non-extensible object will <em>not</em> change the object nor the
+wrapper but it will not produce an error.</p>
+
+<pre><code>  obj = { name: 'lion', type: 'animal' }
+  #mObj as in 'monitored object'
+  mObj = monitor obj
+  mObj.addListener
+      change: (event) -&gt;
+          console.log "The #{event.path} property was 
+                       changed to #{event.value}!"
+
+  # The *change* event will be triggered.
+  mObj.name = 'zebra' 
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">monitor = </span><span class="nf">(obj, extensible = false) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>It will use an appropiate wrapper based on the object type.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">toString</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span>  <span class="o">==</span> <span class="s">&#39;[object Array]&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>It could be an array.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="k">return</span> <span class="k">new</span> <span class="nx">MonitoredArray</span><span class="p">(</span><span class="nx">obj</span><span class="p">,</span><span class="nx">extensible</span><span class="p">)</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;object&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Or a standard object.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="k">return</span> <span class="k">new</span> <span class="nx">MonitoredObject</span><span class="p">(</span><span class="nx">obj</span><span class="p">,</span><span class="nx">extensible</span><span class="p">)</span>
+    <span class="k">else</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>It should only be called on non-primitive types. Other types are not supported.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Can only monitor objects and arrays, not </span><span class="si">#{</span><span class="k">typeof</span> <span class="nx">obj</span><span class="si">}</span><span class="s">&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h3><code>clone(obj)</code></h3>
+
+<p>Simple object cloning function.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">clone = </span><span class="nf">(obj) -&gt;</span>
+    <span class="k">if</span> <span class="nx">obj</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">or</span> <span class="k">typeof</span> <span class="nx">obj</span> <span class="o">!=</span> <span class="s">&#39;object&#39;</span>
+        <span class="k">return</span> <span class="nx">obj</span>
+    <span class="k">if</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">toString</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span>  <span class="o">==</span> <span class="s">&#39;[object Array]&#39;</span>
+        <span class="nv">temp = </span><span class="p">[]</span>
+    <span class="k">else</span>
+        <span class="nv">temp = </span><span class="nx">obj</span><span class="p">.</span><span class="nx">constructor</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">obj</span>
+        <span class="nx">temp</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">clone</span><span class="p">(</span><span class="nx">obj</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span>
+    <span class="k">return</span> <span class="nx">temp</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h3><code>syncedCopy(obj, extensible)</code></h3>
+
+<p>Produces a synchronized copy of a monitored object. Changes to the source object
+changes to the source object will be synchronized to the copy.</p>
+
+<pre><code>  person = { name: 'Juan', type: 'Programmer' }
+  mPerson = monitor person
+  personCopy = syncedCopy(mPerson)
+  mPerson.type = 'Developer'
+  assert.deepEqual(personCopy.type, 'Developer')
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">syncedCopy = </span><span class="nf">(mSrc, extensible=false) -&gt;</span>
+    <span class="nv">synced = </span><span class="k">new</span> <span class="nx">LocallySynced</span><span class="p">(</span><span class="nx">mSrc</span><span class="p">,</span> <span class="nx">mSrc</span><span class="p">.</span><span class="nx">_extensible</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nx">synced</span><span class="p">.</span><span class="nx">obj</span><span class="p">.</span><span class="nx">_obj</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h3><code>couch(key, db, callback)</code></h3>
+
+<p>Obtains a monitored object whose changes are synchronized to a couchdb document.
+It was written based on the <em>nano</em> couchdb module for nodejs.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">couch = </span><span class="nf">(key, db, callback) -&gt;</span>
+    <span class="nx">db</span><span class="p">.</span><span class="nx">get</span> <span class="nx">key</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="o">=&gt;</span>
+        <span class="nv">mDoc = </span><span class="nx">monitor</span><span class="p">(</span><span class="nx">doc</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
+        <span class="k">new</span> <span class="nx">CouchDBSyncedObject</span><span class="p">(</span><span class="nx">mDoc</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">db</span><span class="p">)</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="nx">mDoc</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <h3>SyncedObjectPool</h3>
+
+<p>The <code>SyncedObjectPool</code> objects provide an interface to synchronize objects over
+a websocket. It requires both ends to instance a <code>SyncedObjectPool</code> server and
+client respectively.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>Server side</p>
+
+<pre><code>  serverPool = new monitor.SyncedObjectPool(socket,'server')
+  socket.on 'sync:poolInit', (data) -&gt;
+      serverPants = serverPool.create 'sharedPants',
+          color: 'white'
+      serverPants.addListener
+          change: (event) -&gt;
+              console.log "The pants have changed."
+</code></pre>
+
+<p>Client side</p>
+
+<pre><code>  sharedVars = {}
+  clientPool = new monitor.SyncedObjectPool(socket,'client')
+  clientPool.addListener
+      create : (event) -&gt;
+          sharedVars[event.name] = event.obj
+          event.obj.color = 'blue'
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">SyncedObjectPool</span> <span class="k">extends</span> <span class="nx">Notifier</span>
+
+    <span class="nv">constructor: </span><span class="nf">(@socket, @role, @id=&#39;syncedpool&#39;) -&gt;</span>
+        <span class="k">super</span><span class="p">()</span>
+        <span class="vi">@objects = </span><span class="p">{}</span>
+        <span class="k">if</span> <span class="nx">@role</span> <span class="o">==</span> <span class="s">&#39;client&#39;</span>
+            <span class="nx">socket</span><span class="p">.</span><span class="nx">emit</span> <span class="s">&quot;sync:poolInit&quot;</span><span class="p">,</span>
+                <span class="nv">id: </span><span class="nx">@id</span>
+
+        <span class="nx">socket</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;sync:create&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span>
+            <span class="k">if</span> <span class="nx">data</span><span class="p">.</span><span class="nx">poolId</span> <span class="o">==</span> <span class="nx">@id</span>
+                <span class="nv">mObj = </span><span class="nx">monitor</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">obj</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">extensible</span> <span class="o">?</span> <span class="kc">false</span><span class="p">)</span>
+                <span class="nx">@objects</span><span class="p">[</span><span class="nx">data</span><span class="p">.</span><span class="nx">objId</span><span class="p">]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">RemotelySynced</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">objId</span><span class="p">,</span> <span class="nx">mObj</span><span class="p">,</span> <span class="nx">@socket</span><span class="p">)</span>
+                <span class="nx">@notifyAll</span> <span class="s">&#39;create&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nv">name: </span><span class="nx">data</span><span class="p">.</span><span class="nx">objId</span><span class="p">,</span> <span class="nv">obj: </span><span class="nx">mObj</span><span class="p">}</span>
+
+
+        <span class="nx">socket</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;sync:change&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span>
+            <span class="k">if</span> <span class="nx">@objects</span><span class="p">[</span><span class="nx">data</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span>
+                <span class="nx">@objects</span><span class="p">[</span><span class="nx">data</span><span class="p">.</span><span class="nx">id</span><span class="p">].</span><span class="nx">updateTarget</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="p">,</span><span class="nx">data</span><span class="p">.</span><span class="nx">action</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">transactionId</span><span class="p">)</span>
+
+    <span class="nv">create: </span><span class="nf">(name,obj, extensible = false) -&gt;</span>
+        <span class="k">if</span> <span class="nx">obj</span> <span class="k">instanceof</span> <span class="nx">Monitored</span>
+            <span class="nv">mObj = </span><span class="nx">obj</span>
+        <span class="k">else</span>
+            <span class="nv">mObj = </span><span class="nx">monitor</span><span class="p">(</span><span class="nx">obj</span><span class="p">,</span> <span class="nx">extensible</span><span class="p">)</span>
+        <span class="nx">@objects</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">RemotelySynced</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">mObj</span><span class="p">,</span> <span class="nx">@socket</span><span class="p">)</span>
+
+        <span class="nx">@socket</span><span class="p">.</span><span class="nx">emit</span> <span class="s">&#39;sync:create&#39;</span><span class="p">,</span>
+            <span class="nv">poolId: </span><span class="nx">@id</span>
+            <span class="nv">objId: </span><span class="nx">name</span>
+            <span class="nv">obj: </span><span class="nx">mObj</span><span class="p">.</span><span class="nx">_obj</span>
+            <span class="nv">extensible: </span><span class="nx">extensible</span>
+
+        <span class="k">return</span> <span class="nx">mObj</span>
+    </pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <h3>Synced</h3>
+
+<p>Common superclass for synchronized objects.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">Synced</span> <span class="k">extends</span> <span class="nx">Notifier</span>
+    <span class="nv">constructor: </span><span class="nf">(@src) -&gt;</span>
+        <span class="k">super</span><span class="p">()</span>
+        <span class="nv">handled = </span><span class="p">{}</span>
+        <span class="nx">@src</span><span class="p">.</span><span class="nx">addListener</span>
+            <span class="nv">change : </span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="k">if</span> <span class="o">not</span> <span class="nx">handled</span><span class="p">[</span><span class="nx">data</span><span class="p">.</span><span class="nx">transactionId</span><span class="p">]</span>
+                    <span class="nx">handled</span><span class="p">[</span><span class="nx">data</span><span class="p">.</span><span class="nx">transactionId</span><span class="p">]</span> <span class="o">=</span> <span class="kc">true</span>
+                    <span class="nx">@sourceChanged</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">action</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">transactionId</span><span class="p">)</span>
+                    <span class="nx">@notifyAll</span> <span class="s">&quot;change&quot;</span><span class="p">,</span> <span class="nx">data</span>
+
+    <span class="nv">updateTarget : </span><span class="nf">(path, action, value, transactionId=&quot;id-&quot;+Math.random) -&gt;</span>
+        <span class="nv">target = </span><span class="nx">@obj</span>
+        <span class="k">while</span> <span class="nx">path</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="nv">target = </span><span class="nx">target</span><span class="p">[</span><span class="nx">path</span><span class="p">.</span><span class="nx">shift</span><span class="p">()]</span>
+
+        <span class="k">switch</span> <span class="nx">action</span>
+            <span class="k">when</span> <span class="s">&#39;set&#39;</span> <span class="k">then</span> <span class="nx">target</span><span class="p">.</span><span class="nx">setProperty</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">shift</span><span class="p">(),</span>
+                <span class="nx">value</span><span class="p">,</span> <span class="nx">transactionId</span><span class="p">)</span>
+            <span class="k">when</span> <span class="s">&quot;delete&quot;</span> <span class="k">then</span> <span class="nx">target</span><span class="p">.</span><span class="nx">deleteProperty</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">shift</span><span class="p">(),</span> <span class="nx">transactionId</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <h3>RemotelySynced</h3>
+
+<p>Class to handle synchronization over websockets, <code>RemotelySynced</code> objects are instanciated
+from a <code>SyncedObjectPool</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">RemotelySynced</span> <span class="k">extends</span> <span class="nx">Synced</span>
+    <span class="nv">constructor: </span><span class="nf">(@id, @obj, @socket) -&gt;</span>
+        <span class="k">super</span><span class="p">(</span><span class="nx">@obj</span><span class="p">)</span>
+        <span class="vi">@handledRemoteTransactions = </span><span class="p">{}</span>
+
+    <span class="nv">sourceChanged: </span><span class="nf">(path, action, value, transactionId) -&gt;</span>
+        <span class="k">if</span> <span class="o">not</span> <span class="nx">@handledRemoteTransactions</span><span class="p">[</span><span class="nx">transactionId</span><span class="p">]</span>
+            <span class="nx">@socket</span><span class="p">.</span><span class="nx">emit</span> <span class="s">&quot;sync:change&quot;</span><span class="p">,</span>
+                <span class="nv">id: </span><span class="nx">@id</span>
+                <span class="nv">path: </span><span class="nx">path</span>
+                <span class="nv">action: </span><span class="nx">action</span>
+                <span class="nv">value: </span><span class="nx">value</span>
+                <span class="nv">transactionId: </span><span class="nx">transactionId</span>
+
+    <span class="nv">updateTarget : </span><span class="nf">(path, action, value, transactionId=&quot;id-&quot;+Math.random) -&gt;</span>
+        <span class="nx">@handledRemoteTransactions</span><span class="p">[</span><span class="nx">transactionId</span><span class="p">]</span> <span class="o">=</span> <span class="kc">true</span>
+        <span class="k">super</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="nx">action</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">transactionId</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <h3>CouchDBSyncedObject</h3>
+
+<p>Class to handle synchronization with couchdb documents. These are created using the <code>couch</code> function</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">CouchDBSyncedObject</span> <span class="k">extends</span> <span class="nx">Synced</span>
+    <span class="nv">constructor: </span><span class="nf">(@obj, @key, @db) -&gt;</span>
+        <span class="k">super</span><span class="p">(</span><span class="nx">@obj</span><span class="p">)</span>
+
+    <span class="nv">sourceChanged: </span><span class="nf">(path, action, value, transactionId) -&gt;</span>
+        <span class="k">if</span> <span class="nx">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;_rev&#39;</span>
+            <span class="nx">@db</span><span class="p">.</span><span class="nx">insert</span> <span class="nx">@obj</span><span class="p">.</span><span class="nx">_obj</span><span class="p">,</span> <span class="nx">@key</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">d</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="k">if</span> <span class="nx">err</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">err</span>
+                <span class="k">else</span> <span class="k">if</span> <span class="nx">d</span><span class="p">.</span><span class="nx">ok</span>
+                    <span class="nx">@obj</span><span class="p">.</span><span class="nx">setProperty</span><span class="p">(</span><span class="s">&#39;_rev&#39;</span><span class="p">,</span><span class="nx">d</span><span class="p">.</span><span class="nx">rev</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <h3>LocallySynced</h3>
+
+<p>Class to handle synchronization between two local varialbes. Used by the <code>syncCopy</code> function</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">LocallySynced</span> <span class="k">extends</span> <span class="nx">Synced</span>
+    <span class="nv">constructor: </span><span class="nf">(@src, extensible=false)-&gt;</span>
+        <span class="k">super</span><span class="p">(</span><span class="nx">@src</span><span class="p">)</span>
+        <span class="vi">@obj = </span><span class="nx">monitor</span><span class="p">(</span><span class="nx">clone</span><span class="p">(</span><span class="nx">@src</span><span class="p">[</span><span class="s">&#39;_obj&#39;</span><span class="p">]),</span> <span class="nx">extensible</span><span class="p">)</span>
+
+    <span class="nv">sourceChanged: </span><span class="nf">(path,action, value, transactionId) -&gt;</span>
+        <span class="nx">@updateTarget</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="nx">action</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">transactionId</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <h3>Monitored</h3>
+
+<p>Base class for monitored objects. These are usually instanciated using the <code>monitor</code> helper
+function.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">Monitored</span> <span class="k">extends</span> <span class="nx">Notifier</span>
+    <span class="nv">constructor: </span><span class="nf">(@_obj, @_extensible = false)-&gt;</span>
+        <span class="k">super</span><span class="p">()</span>
+        <span class="vi">@__propertyListeners__ = </span><span class="p">{}</span>
+        <span class="vi">@_transactionId = </span><span class="kc">false</span>
+
+
+    <span class="nv">_clearProperty : </span><span class="nf">(key) -&gt;</span>
+        <span class="k">delete</span> <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="k">instanceof</span> <span class="nx">Notifier</span>
+            <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">removeListener</span> <span class="nx">@__propertyListeners__</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+            <span class="k">delete</span> <span class="nx">@__propertyListeners__</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+
+    <span class="nv">_notifyPropertyChange : </span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">transactionId</span><span class="o">=</span><span class="s">&quot;id-&quot;</span><span class="o">+</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">())</span> <span class="o">-&gt;</span>
+        <span class="nx">@notifyAll</span> <span class="s">&quot;set&quot;</span><span class="p">,</span>
+            <span class="nv">key: </span><span class="nx">key</span>
+            <span class="nv">value: </span><span class="nx">value</span>
+            <span class="nv">transactionId: </span><span class="nx">transactionId</span>
+        <span class="nx">@notifyAll</span> <span class="s">&quot;change&quot;</span><span class="p">,</span>
+            <span class="nv">action: </span><span class="s">&quot;set&quot;</span>
+            <span class="nv">path: </span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+            <span class="nv">value: </span><span class="nx">value</span>
+            <span class="nv">transactionId: </span><span class="nx">transactionId</span>
+
+    <span class="nv">setProperty : </span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">transactionId</span><span class="o">=</span><span class="s">&quot;id-&quot;</span><span class="o">+</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">())</span> <span class="o">-&gt;</span>
+        <span class="k">if</span> <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+            <span class="nx">@_clearProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
+            <span class="nx">@_obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+            <span class="nx">@_monitorProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="nx">value</span><span class="p">)</span>
+            <span class="nx">@_notifyPropertyChange</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="nx">value</span><span class="p">,</span> <span class="nx">transactionId</span><span class="p">)</span>
+        <span class="k">else</span>
+            <span class="k">if</span> <span class="o">not</span> <span class="nx">@_extensible</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Trying to extend a non-extensible object.&quot;</span>
+
+            <span class="nx">@_obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+            <span class="nx">@_monitorProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="nx">value</span><span class="p">)</span>
+            <span class="nx">@notifyAll</span> <span class="s">&quot;change&quot;</span><span class="p">,</span>
+                <span class="nv">action: </span><span class="s">&quot;set&quot;</span>
+                <span class="nv">path: </span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+                <span class="nv">value: </span><span class="nx">value</span>
+                <span class="nv">transactionId: </span><span class="nx">transactionId</span>
+
+    <span class="nv">deleteProperty : </span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">transactionId</span><span class="o">=</span><span class="s">&quot;id-&quot;</span><span class="o">+</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">())</span> <span class="o">-&gt;</span>
+        <span class="k">if</span> <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="k">instanceof</span> <span class="nx">Notifier</span>
+                <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">removeListener</span> <span class="nx">@__propertyListeners__</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+                <span class="k">delete</span> <span class="nx">@__propertyListeners__</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+
+            <span class="k">delete</span> <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+            <span class="k">delete</span> <span class="nx">@_obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+            <span class="nx">@notifyAll</span> <span class="s">&quot;change&quot;</span><span class="p">,</span>
+                <span class="nv">action: </span><span class="s">&quot;delete&quot;</span>
+                <span class="nv">path: </span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+                <span class="nv">transactionId: </span><span class="nx">transactionId</span>
+
+
+    <span class="nv">_defineObjectProperty : </span><span class="nf">(key, value) -&gt;</span>
+        <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">monitor</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">@_extensible</span><span class="p">)</span>
+        <span class="nx">@__propertyListeners__</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">addListener</span>
+            <span class="nv">change: </span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nv">path = </span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="nx">path</span><span class="p">.</span><span class="nx">unshift</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
+                <span class="nx">@notifyAll</span> <span class="s">&quot;change&quot;</span><span class="p">,</span>
+                    <span class="nv">action: </span><span class="s">&quot;set&quot;</span>
+                    <span class="nv">path : </span><span class="nx">path</span>
+                    <span class="nv">value: </span><span class="nx">data</span><span class="p">.</span><span class="nx">value</span>
+                    <span class="nv">transactionId: </span><span class="nx">data</span><span class="p">.</span><span class="nx">transactionId</span>
+
+    <span class="nv">_monitorProperty: </span><span class="nf">(key, value) -&gt;</span>
+        <span class="k">if</span> <span class="nx">value</span> <span class="o">and</span> <span class="k">typeof</span> <span class="nx">value</span> <span class="o">==</span><span class="s">&#39;object&#39;</span>
+            <span class="nx">@_defineObjectProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span>
+        <span class="k">else</span>
+            <span class="nx">@__defineGetter__</span> <span class="nx">key</span><span class="p">,</span> <span class="o">=&gt;</span>
+                <span class="k">return</span> <span class="nx">@_obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+
+            <span class="nx">@__defineSetter__</span> <span class="nx">key</span><span class="p">,</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="k">if</span> <span class="o">not</span> <span class="nx">@_extensible</span>
+                    <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Using asignment operator on non-extensible object, use set/deleteProperty() methods instead or enable object extensibility.&quot;</span>
+
+                <span class="nx">@_notifyPropertyChange</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="nx">val</span><span class="p">)</span>
+                <span class="nx">@_obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">val</span>
+                <span class="nx">@_clearProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="k">typeof</span> <span class="nx">val</span> <span class="o">==</span><span class="s">&#39;object&#39;</span>
+                    <span class="nx">@_defineObjectProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+                <span class="k">else</span>
+                    <span class="nx">@__defineGetter__</span> <span class="nx">key</span><span class="p">,</span> <span class="o">=&gt;</span>
+                        <span class="k">return</span> <span class="nx">@_obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+                    <span class="k">return</span> <span class="nx">val</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <h3>MonitoredArray</h3>
+
+<p>Wrapper class to handle array monitoring.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">MonitoredArray</span> <span class="k">extends</span> <span class="nx">Monitored</span>
+
+    <span class="nv">constructor: </span><span class="nf">(@_obj) -&gt;</span>
+        <span class="k">super</span> <span class="nx">@_obj</span><span class="p">,</span> <span class="kc">true</span>
+        <span class="nx">@__defineGetter__</span> <span class="s">&#39;length&#39;</span><span class="p">,</span> <span class="o">=&gt;</span> <span class="k">return</span> <span class="nx">@_obj</span><span class="p">.</span><span class="nx">length</span>
+        <span class="nx">@__defineGetter__</span> <span class="s">&#39;index&#39;</span><span class="p">,</span> <span class="o">=&gt;</span> <span class="k">return</span> <span class="nx">@_obj</span><span class="p">.</span><span class="nx">index</span>
+
+        <span class="nv">arrayMethods = </span><span class="p">[</span><span class="s">&#39;concat&#39;</span><span class="p">,</span> <span class="s">&#39;indexOf&#39;</span><span class="p">,</span> <span class="s">&#39;join&#39;</span><span class="p">,</span> <span class="s">&#39;pop&#39;</span><span class="p">,</span> <span class="s">&#39;push&#39;</span><span class="p">,</span> <span class="s">&#39;reverse&#39;</span><span class="p">,</span>
+                        <span class="s">&#39;shift&#39;</span><span class="p">,</span> <span class="s">&#39;slice&#39;</span><span class="p">,</span> <span class="s">&#39;sort&#39;</span><span class="p">,</span> <span class="s">&#39;splice&#39;</span><span class="p">,</span> <span class="s">&#39;toString&#39;</span><span class="p">,</span> <span class="s">&#39;unshift&#39;</span><span class="p">,</span>
+                        <span class="s">&#39;valueOf&#39;</span><span class="p">,</span> <span class="s">&#39;toSource&#39;</span><span class="p">,</span> <span class="s">&#39;indexOf&#39;</span><span class="p">,</span> <span class="s">&#39;filter&#39;</span><span class="p">,</span> <span class="s">&#39;forEach&#39;</span><span class="p">,</span>
+                        <span class="s">&#39;every&#39;</span><span class="p">,</span><span class="s">&#39;map&#39;</span><span class="p">,</span><span class="s">&#39;some&#39;</span><span class="p">,</span><span class="s">&#39;reduce&#39;</span><span class="p">,</span><span class="s">&#39;reduceRight&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="nx">methodName</span> <span class="k">in</span> <span class="nx">arrayMethods</span>
+            <span class="nx">do</span> <span class="p">(</span><span class="nx">methodName</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nx">@</span><span class="p">[</span><span class="nx">methodName</span><span class="p">]</span> <span class="o">=</span> <span class="o">=&gt;</span>
+                    <span class="nv">ret = </span><span class="nx">@_obj</span><span class="p">[</span><span class="nx">methodName</span><span class="p">].</span><span class="nx">apply</span> <span class="nx">@_obj</span><span class="p">,</span> <span class="nx">arguments</span>
+
+                    <span class="nx">@notifyAll</span> <span class="s">&quot;methodCall&quot;</span><span class="p">,</span>
+                        <span class="nv">methodName: </span><span class="nx">methodName</span>
+                        <span class="nv">args: </span><span class="nx">arguments</span>
+
+                    <span class="k">return</span> <span class="nx">ret</span>
+
+        <span class="nx">@addListener</span>
+            <span class="nv">methodCall: </span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="k">switch</span> <span class="nx">data</span><span class="p">.</span><span class="nx">methodName</span>
+                    <span class="k">when</span> <span class="s">&quot;push&quot;</span> <span class="k">then</span> <span class="nx">@notifyAll</span> <span class="s">&quot;change&quot;</span><span class="p">,</span>
+                        <span class="nv">path: </span><span class="p">[</span><span class="nx">@_obj</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="nv">value: </span><span class="nx">data</span><span class="p">.</span><span class="nx">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="nv">action: </span><span class="s">&quot;set&quot;</span>
+                        <span class="nv">transactionId: </span><span class="s">&quot;id-push-&quot;</span><span class="o">+</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span>
+
+        <span class="vi">@__childMonitors = </span><span class="p">{}</span>
+        <span class="vi">@_monitoredIndices = </span><span class="mi">0</span>
+        <span class="nx">@_updateIndices</span><span class="p">()</span>
+
+    <span class="nv">_updateIndices: </span><span class="o">-&gt;</span>
+        <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="nx">@_monitoredIndices</span><span class="p">..</span><span class="nx">@_obj</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="nx">do</span> <span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nv">value = </span><span class="nx">@_obj</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+                <span class="nx">@_monitorProperty</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="nx">value</span><span class="p">)</span>
+
+        <span class="vi">@_monitoredIndices = </span><span class="nx">@_obj</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span>
+
+    <span class="nv">isArray: </span><span class="o">-&gt;</span> <span class="k">return</span> <span class="nx">True</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <h3>MonitoredObject</h3>
+
+<p>Class to handle generic obect monitoring.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">MonitoredObject</span> <span class="k">extends</span> <span class="nx">Monitored</span>
+
+    <span class="nv">constructor: </span><span class="nf">(@_obj, @_extensible=false) -&gt;</span>
+        <span class="k">super</span> <span class="nx">@_obj</span><span class="p">,</span> <span class="nx">@_extensible</span>
+        <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">@_obj</span>
+            <span class="nx">do</span> <span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nx">@_monitorProperty</span> <span class="nx">key</span><span class="p">,</span><span class="nx">value</span>
+
+        <span class="k">if</span> <span class="o">not</span> <span class="nx">@_extensible</span>
+            <span class="nb">Object</span><span class="p">.</span><span class="nx">preventExtensions</span> <span class="nx">@</span>
+            <span class="nb">Object</span><span class="p">.</span><span class="nx">preventExtensions</span> <span class="nx">@_obj</span>
+
+<span class="o">`</span><span class="nv">exports = </span><span class="p">(</span><span class="k">typeof</span> <span class="nb">window</span> <span class="o">===</span> <span class="s">&#39;object&#39;</span><span class="o">?</span> <span class="nb">window</span><span class="p">[</span><span class="s">&#39;monitor&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">{}</span><span class="o">:</span> <span class="nx">exports</span><span class="p">)</span><span class="o">`</span>
+<span class="nv">exports.monitor = </span><span class="nx">monitor</span>
+<span class="nv">exports.syncedCopy = </span><span class="nx">syncedCopy</span>
+<span class="nv">exports.SyncedObjectPool = </span><span class="nx">SyncedObjectPool</span>
+<span class="nv">exports.CouchDBSyncedObject = </span><span class="nx">CouchDBSyncedObject</span>
+<span class="nv">exports.clone = </span><span class="nx">clone</span>
+<span class="nv">exports.couch = </span><span class="nx">couch</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
